@@ -1,6 +1,6 @@
 [tasks.clean]
 command = "cargo"
-args = ["clean", "--quiet"]
+args = ["clean"]
 
 [tasks.build]
 command = "cargo"
