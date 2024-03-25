@@ -1,11 +1,10 @@
 [tasks.clean]
 command = "cargo"
-args = ["clean"]
+args = ["clean", "--quiet"]
 
 [tasks.build]
 command = "cargo"
 args = ["build", "--release"]
-dependencies = ["clean"]
 
 [tasks.remove-metadata]
 command = "rust-objcopy"
@@ -14,7 +13,7 @@ args = [
     "-O", "binary", "target/riscv64gc-unknown-none-elf/release/phakel-os.bin"
 ]
 
-[tasks.qemu]
+[tasks.qemu-debug]
 command = "qemu-system-riscv64"
 args = [
     "-machine", "virt",
@@ -25,8 +24,18 @@ args = [
     "-S"
 ]
 
+[tasks.qemu]
+command = "qemu-system-riscv64"
+args = [
+    "-machine", "virt",
+    "-nographic",
+    "-bios", "./bootloader/rustsbi-qemu.bin",
+    "-device", "loader,file=target/riscv64gc-unknown-none-elf/release/phakel-os.bin,addr=0x80200000"
+]
+
 [tasks.make-bin]
 dependencies = [
+    "clean",
     "build",
     "remove-metadata"
 ]
@@ -35,4 +44,10 @@ dependencies = [
 dependencies = [
     "make-bin",
     "qemu"
+]
+
+[tasks.debug-bin]
+dependencies = [
+    "make-bin",
+    "qemu-debug"
 ]
