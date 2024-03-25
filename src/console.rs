@@ -57,10 +57,10 @@ impl Log for Logger {
 
 fn get_color(level: Level) -> &'static str {
     match level {
-        Level::Error => "\x1b[31mERROR\x1b[0m".into(),
-        Level::Warn => "\x1b[93mWARN\x1b[0m".into(),
-        Level::Info => "\x1b[34mINFO\x1b[0m".into(),
-        Level::Debug => "\x1b[32mDEBUG\x1b[0m".into(),
-        Level::Trace => "\x1b[90mTRACE\x1b[0m".into()
+        Level::Error => "\x1b[31mERROR\x1b[0m",
+        Level::Warn => "\x1b[93mWARN\x1b[0m",
+        Level::Info => "\x1b[34mINFO\x1b[0m",
+        Level::Debug => "\x1b[32mDEBUG\x1b[0m",
+        Level::Trace => "\x1b[90mTRACE\x1b[0m"
     }
 }
