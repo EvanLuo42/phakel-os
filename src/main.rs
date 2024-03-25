@@ -4,16 +4,17 @@
 
 use core::arch::global_asm;
 use log::{debug, error, info, LevelFilter};
-use crate::console::Logger;
+use crate::logger::KernelLogger;
 
 mod lang_items;
 mod sbi;
 #[macro_use]
 mod console;
+mod logger;
 
 global_asm!(include_str!("entry.asm"));
 
-static LOGGER: Logger = Logger;
+static LOGGER: KernelLogger = KernelLogger;
 
 #[no_mangle]
 pub fn rust_main() -> ! {
