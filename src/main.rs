@@ -17,6 +17,7 @@ mod console;
 mod logger;
 mod config;
 mod mm;
+mod symbols;
 
 global_asm!(include_str!("entry.asm"));
 
@@ -36,27 +37,15 @@ pub fn rust_main() -> ! {
 }
 
 fn debug_clear_bss() {
-    extern "C" {
-        fn stext();
-        fn etext();
-        fn srodata();
-        fn erodata();
-        fn sdata();
-        fn edata();
-    }
 
-    debug!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
-    debug!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
-    debug!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
+    debug!(".text [{:#x}, {:#x})", symbols::stext as usize, symbols::etext as usize);
+    debug!(".rodata [{:#x}, {:#x})", symbols::srodata as usize, symbols::erodata as usize);
+    debug!(".data [{:#x}, {:#x})", symbols::sdata as usize, symbols::edata as usize);
 }
 
 fn clear_bss() {
-    extern "C" {
-        fn sbss();
-        fn ebss();
-    }
 
-    (sbss as usize..ebss as usize).for_each(|i| {
+    (symbols::sbss as usize..symbols::ebss as usize).for_each(|i| {
         unsafe { (i as *mut u8).write_volatile(0) }
     });
 }
