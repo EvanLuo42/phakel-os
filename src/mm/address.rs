@@ -34,6 +34,13 @@ impl From<PhysPageNum> for PhysAddr {
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub struct PhysPageNum(pub usize);
 
+impl PhysPageNum {
+    pub fn get_bytes_array(&self) -> &'static mut [u8] {
+        let pa: PhysAddr = (*self).into();
+        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, 4096) }
+    }
+}
+
 impl From<usize> for PhysPageNum {
     fn from(value: usize) -> Self {
         PhysPageNum(value & ((1 << PHYS_PAGE_NUMBER_WIDTH) - 1))

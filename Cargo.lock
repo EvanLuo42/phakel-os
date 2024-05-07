@@ -70,6 +70,7 @@ dependencies = [
  "log",
  "riscv",
  "sbi-rt",
+ "spin 0.9.8",
  "thiserror-no-std",
  "xmas-elf",
 ]
