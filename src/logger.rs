@@ -1,4 +1,5 @@
 use log::{Level, Log, Metadata, Record};
+use crate::println;
 
 pub struct KernelLogger;
 

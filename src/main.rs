@@ -6,21 +6,23 @@
 extern crate alloc;
 
 use core::arch::global_asm;
-use log::{debug, info, LevelFilter};
+use buddy_system_allocator::LockedHeap;
+use log::{debug, LevelFilter};
 use crate::logger::KernelLogger;
-use crate::mm::frame_allocator::{frame_allocator_test, init_frame_allocator};
 
-mod lang_items;
-mod sbi;
 #[macro_use]
-mod console;
 mod logger;
 mod config;
 mod symbols;
-mod mm;
 mod errors;
+mod arch;
+mod driver;
+mod print;
 
-global_asm!(include_str!("entry.asm"));
+#[global_allocator]
+static HEAP_ALLOCATOR: LockedHeap<32> = LockedHeap::empty();
+
+global_asm!(include_str!("asm/entry.S"));
 
 static LOGGER: KernelLogger = KernelLogger;
 
@@ -31,8 +33,6 @@ pub fn rust_main() -> ! {
         .map(|()| log::set_max_level(LevelFilter::Debug))
         .expect("Set logger error");
     debug_clear_bss();
-    init_frame_allocator();
-    frame_allocator_test();
     panic!("Shutdown machine!");
 }
 
