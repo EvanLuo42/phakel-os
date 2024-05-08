@@ -8,15 +8,16 @@ extern crate alloc;
 use core::arch::global_asm;
 use buddy_system_allocator::LockedHeap;
 use log::{debug, LevelFilter};
-use crate::logger::KernelLogger;
+use crate::driver::uart;
+use crate::driver::uart::UART;
+use crate::print::KernelLogger;
 
-#[macro_use]
-mod logger;
 mod config;
 mod symbols;
 mod errors;
 mod arch;
 mod driver;
+#[macro_use]
 mod print;
 
 #[global_allocator]
@@ -29,6 +30,7 @@ static LOGGER: KernelLogger = KernelLogger;
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
+    uart::uart_init();
     log::set_logger(&LOGGER)
         .map(|()| log::set_max_level(LevelFilter::Debug))
         .expect("Set logger error");

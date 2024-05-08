@@ -6,6 +6,11 @@ use spin::mutex::SpinMutex;
 
 use crate::arch::riscv::qemu;
 
+#[inline(always)]
+pub fn uart_init() {
+    UART.lock().init();
+}
+
 /// receive holding register (for input bytes)
 const RHR: usize = 0;
 /// transmit holding register (for output bytes)
