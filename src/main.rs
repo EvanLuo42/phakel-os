@@ -9,7 +9,6 @@ use core::arch::global_asm;
 use buddy_system_allocator::LockedHeap;
 use log::{debug, LevelFilter};
 use crate::driver::uart;
-use crate::driver::uart::UART;
 use crate::print::KernelLogger;
 
 mod config;

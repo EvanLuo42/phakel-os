@@ -1,9 +1,4 @@
-use sbi_rt::{NoReason, Shutdown, system_reset, SystemFailure, legacy};
-
-pub fn console_write_byte(c: u8) {
-    #[allow(deprecated)]
-    legacy::console_putchar(c as usize);
-}
+use sbi_rt::{NoReason, Shutdown, system_reset, SystemFailure};
 
 pub fn shutdown(failure: bool) -> ! {
     if !failure {
