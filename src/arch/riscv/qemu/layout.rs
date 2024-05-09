@@ -19,7 +19,7 @@ pub mod physical {
     //! PHYSTOP -- end RAM used by the kernel
     
     /// Qemu puts UART registers here in physical memory.
-    pub const UART0 :usize = 0x10000000;
+    pub const UART0: usize = 0x10000000;
     pub const UART0_IRQ: u32 = 10;
 
     /// virtio mmio interface
@@ -61,25 +61,25 @@ pub mod user {
     //! from physical address 0x80000000 to PHYSTOP.
     
     pub const MEM_SIZE: usize = 128 * 1024 * 1024;
-    pub const KERNEL_BASE: usize =  0x80000000;
+    pub const KERNEL_BASE: usize = 0x80000000;
     pub const PHYSTOP: usize = KERNEL_BASE + MEM_SIZE;
 
     /// Bytes per page
-    pub const PGSIZE: usize = 4096;
+    pub const PAGE_SIZE: usize = 4096;
     /// Bits of offset within a page
-    pub const PGSHIFT: usize = 12;
-    pub const PGMASKLEN: usize = 9;
-    pub const PGMASK: usize = 0x1FF;
+    pub const PAGE_SHIFT: usize = 12;
+    pub const PAGE_MASK_LEN: usize = 9;
+    pub const PAGE_MASK: usize = 0x1FF;
 
 
     /// One beyond the highest possible virtual address.
     /// MAXVA is actually one bit less than the max allowed by
     /// Sv39, to avoid having to sign-extend virtual addresses
     /// that have the high bit set.
-    pub const MAXVA: usize =  1 << (9 + 9 + 9 + 12 - 1);
+    pub const MAXVA: usize = 1 << (9 + 9 + 9 + 12 - 1);
 
     /// map the trampoline page to the highest address, 
     /// in both user and kernel space.
-    pub const TRAMPOLINE: usize = MAXVA - PGSIZE;
-    pub const TRAPFRAME: usize = TRAMPOLINE - PGSIZE;
+    pub const TRAMPOLINE: usize = MAXVA - PAGE_SIZE;
+    pub const TRAPFRAME: usize = TRAMPOLINE - PAGE_SIZE;
 }

@@ -6,7 +6,6 @@
 extern crate alloc;
 
 use core::arch::global_asm;
-use buddy_system_allocator::LockedHeap;
 use log::{debug, LevelFilter};
 use crate::driver::uart;
 use crate::print::KernelLogger;
@@ -18,9 +17,7 @@ mod arch;
 mod driver;
 #[macro_use]
 mod print;
-
-#[global_allocator]
-static HEAP_ALLOCATOR: LockedHeap<32> = LockedHeap::empty();
+mod memory;
 
 global_asm!(include_str!("asm/entry.S"));
 
