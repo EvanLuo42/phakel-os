@@ -2,10 +2,11 @@ use core::fmt;
 use core::fmt::Write;
 use core::panic::PanicInfo;
 use log::{Level, Log, Metadata, Record};
-use crate::arch::riscv::sbi::shutdown;
-use crate::driver::uart::UART;
+use crate::arch::{Arch, Uart};
+use crate::GlobalArch;
+use crate::uart::UART;
 
-pub fn _print(args: fmt::Arguments) {
+pub fn print(args: fmt::Arguments) {
     UART.lock().write_fmt(args).unwrap()
 }
 
@@ -15,18 +16,18 @@ pub fn console_put(c: u8) {
 
 /// implement print and println! macro
 ///
-/// use [`core::fmt::Write`] trait's [`console::Stdout`]
+/// use [`Write`] trait's [`console::Stdout`]
 #[macro_export]
 macro_rules! print {
     (fmt:literal$(, $($arg: tt)+)?) => {
-        $crate::printf::console_putchar(format_args!($fmt(, $($arg)+)?));
+        $crate::print::console_putchar(format_args!($fmt(, $($arg)+)?));
     }
 }
 
 #[macro_export]
 macro_rules! println {
     ($fmt:literal$(, $($arg: tt)+)?) => {
-        $crate::print::_print(format_args!(concat!($fmt, "\n") $(,$($arg)+)?));
+        $crate::print::print(format_args!(concat!($fmt, "\n") $(,$($arg)+)?));
     }
 }
 
@@ -42,7 +43,7 @@ fn panic(_panic_info: &PanicInfo) -> ! {
     } else {
         println!("Panicked: {}", _panic_info.message().unwrap());
     }
-    shutdown(true)
+    GlobalArch::shutdown(true)
 }
 
 #[no_mangle]

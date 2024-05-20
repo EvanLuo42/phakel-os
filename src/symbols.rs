@@ -1,3 +1,4 @@
+#[cfg(target_arch = "riscv64")]
 extern "C" {
     pub fn skernel();
     pub fn ekernel();

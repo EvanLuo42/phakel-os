@@ -1,15 +1,6 @@
-use core::fmt::{Error, Write};
+use core::fmt::Write;
 use core::num::Wrapping;
-
-use lazy_static::lazy_static;
-use spin::mutex::SpinMutex;
-
-use crate::arch::riscv::qemu;
-
-#[inline(always)]
-pub fn uart_init() {
-    UART.lock().init();
-}
+use crate::arch::Uart;
 
 /// receive holding register (for input bytes)
 const RHR: usize = 0;
@@ -35,34 +26,36 @@ const LCR_BAUD_LATCH: usize = 1 << 7;
 const LSR_RX_READY: usize = 1 << 0;
 const LSR_TX_IDLE: usize = 1 << 5;
 
-const UART_BASE_ADDR: usize = qemu::layout::physical::UART0;
+const UART_BASE_ADDR: usize = 0x10000000;
 const UART_BUF_SIZE: usize = 32;
 
-lazy_static! {
-    pub static ref UART: SpinMutex<Uart> = SpinMutex::new(Uart::default());
-}
-
-pub struct Uart {
+pub struct RiscVUart {
     buf: [u8; UART_BUF_SIZE],
     /// Write to next to buf[write_index % UART_BUF_SIZE]
     write_index: Wrapping<usize>,
     /// Read next from buf[read_index % UART_BUF_SIZE]
-    read_index: Wrapping<usize>
+    read_index: Wrapping<usize>   
 }
 
-impl Default for Uart {
-    fn default() -> Self {
+impl Write for RiscVUart {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        for c in s.bytes() {
+            self.put(c);
+        }
+        Ok(())
+    }
+}
+
+impl Uart for RiscVUart {
+    fn new() -> Self {
         Self {
             buf: [0u8; UART_BUF_SIZE],
             write_index: Wrapping(0),
             read_index: Wrapping(0)
         }
     }
-}
 
-impl Uart {
-    /// Initialize UART device
-    pub fn init(&mut self) {
+    fn init(&mut self) {
         // Disable interrupts
         write_reg(UART_BASE_ADDR + IER, 0x00);
 
@@ -86,14 +79,7 @@ impl Uart {
         write_reg(UART_BASE_ADDR + IER, IER_TX_ENABLE as u8 | IER_RX_ENABLE as u8);
     }
 
-    /// Add a character to the output buffer and tell the
-    /// UART to start sending if it isn't already.
-    ///
-    /// Locks if the output buffer is full.
-    ///
-    /// **Because it may block, it can't be called from interrupts, and it's
-    /// only suitable for use by write()**
-    pub fn put(&mut self, c: u8) {
+    fn put(&mut self, c: u8) {
         let ptr = UART_BASE_ADDR as *mut u8;
         // Write until previous data is flushed
         while unsafe { ptr.add(5).read_volatile() } & (1 << 5) == 0 {
@@ -104,27 +90,8 @@ impl Uart {
         }
     }
 
-    /// Get a character from uart
-    pub fn get(&mut self) -> Option<u8> {
-        let ptr = UART_BASE_ADDR as *mut u8;
-        unsafe {
-            if ptr.add(5).read_volatile() & 1 == 0 {
-                // DR bit is 0 -> No data
-                None
-            } else {
-                // DR bit is 1 -> Has data
-                Some(ptr.add(0).read_volatile())
-            }
-        }
-    }
-}
-
-impl Write for Uart {
-    fn write_str(&mut self, out: &str) -> Result<(), Error> {
-        for c in out.bytes() {
-            self.put(c);
-        }
-        Ok(())
+    fn get(&mut self) -> Option<u8> {
+        todo!()
     }
 }
 
